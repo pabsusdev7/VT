@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		91CB024A24A37B8200D9E0D1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91CB024924A37B8200D9E0D1 /* AppDelegate.swift */; };
 		91CB024C24A37B8200D9E0D1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91CB024B24A37B8200D9E0D1 /* SceneDelegate.swift */; };
-		91CB024E24A37B8200D9E0D1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91CB024D24A37B8200D9E0D1 /* ViewController.swift */; };
+		91CB024E24A37B8200D9E0D1 /* TravelLocationsMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91CB024D24A37B8200D9E0D1 /* TravelLocationsMapViewController.swift */; };
 		91CB025124A37B8200D9E0D1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91CB024F24A37B8200D9E0D1 /* Main.storyboard */; };
 		91CB025324A37B8500D9E0D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 91CB025224A37B8500D9E0D1 /* Assets.xcassets */; };
 		91CB025624A37B8500D9E0D1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91CB025424A37B8500D9E0D1 /* LaunchScreen.storyboard */; };
@@ -19,7 +19,7 @@
 		91CB024624A37B8200D9E0D1 /* VT.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VT.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91CB024924A37B8200D9E0D1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		91CB024B24A37B8200D9E0D1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		91CB024D24A37B8200D9E0D1 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		91CB024D24A37B8200D9E0D1 /* TravelLocationsMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelLocationsMapViewController.swift; sourceTree = "<group>"; };
 		91CB025024A37B8200D9E0D1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		91CB025224A37B8500D9E0D1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		91CB025524A37B8500D9E0D1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -58,13 +58,29 @@
 			children = (
 				91CB024924A37B8200D9E0D1 /* AppDelegate.swift */,
 				91CB024B24A37B8200D9E0D1 /* SceneDelegate.swift */,
-				91CB024D24A37B8200D9E0D1 /* ViewController.swift */,
-				91CB024F24A37B8200D9E0D1 /* Main.storyboard */,
-				91CB025224A37B8500D9E0D1 /* Assets.xcassets */,
-				91CB025424A37B8500D9E0D1 /* LaunchScreen.storyboard */,
+				91CB025E24A37C4100D9E0D1 /* Controller */,
+				91CB025D24A37C1600D9E0D1 /* Assets */,
 				91CB025724A37B8500D9E0D1 /* Info.plist */,
 			);
 			path = VT;
+			sourceTree = "<group>";
+		};
+		91CB025D24A37C1600D9E0D1 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				91CB024F24A37B8200D9E0D1 /* Main.storyboard */,
+				91CB025224A37B8500D9E0D1 /* Assets.xcassets */,
+				91CB025424A37B8500D9E0D1 /* LaunchScreen.storyboard */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
+		91CB025E24A37C4100D9E0D1 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				91CB024D24A37B8200D9E0D1 /* TravelLocationsMapViewController.swift */,
+			);
+			path = Controller;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -138,7 +154,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				91CB024E24A37B8200D9E0D1 /* ViewController.swift in Sources */,
+				91CB024E24A37B8200D9E0D1 /* TravelLocationsMapViewController.swift in Sources */,
 				91CB024A24A37B8200D9E0D1 /* AppDelegate.swift in Sources */,
 				91CB024C24A37B8200D9E0D1 /* SceneDelegate.swift in Sources */,
 			);
@@ -294,7 +310,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ingenuityapps.ios.VT;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -312,7 +328,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ingenuityapps.ios.VT;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
