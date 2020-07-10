@@ -14,6 +14,9 @@ class TravelLocationsMapViewController: UIViewController {
     
     @IBOutlet weak var mapView: MKMapView!
     
+    var geoCoder: CLGeocoder!
+    
+    var appDel: AppDelegate!
     
     var dataController:DataController!
        
@@ -21,10 +24,11 @@ class TravelLocationsMapViewController: UIViewController {
 
     fileprivate func setUpFetchedResultsController() {
         let fetchRequest:NSFetchRequest<Pin> = Pin.fetchRequest()
-        //let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
-        //fetchRequest.sortDescriptors = [sortDescriptor]
+        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
         
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
         do{
             try fetchedResultsController.performFetch()
             mapView.addAnnotations(fetchedResultsController.fetchedObjects!)
@@ -36,6 +40,10 @@ class TravelLocationsMapViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        appDel = (UIApplication.shared.delegate as! AppDelegate)
+        
+        dataController = appDel.dataController
         
         setUpFetchedResultsController()
         
@@ -56,6 +64,19 @@ class TravelLocationsMapViewController: UIViewController {
         // Get the coordinates of the point you pressed long.
         let location = sender.location(in: mapView)
         
+        var locationDescription = ""
+        
+        geoCoder!.reverseGeocodeLocation(location) { (placemarks, error) in
+            guard error == nil else {
+                return
+            }
+            
+            // Most geocoding requests contain only one result.
+            if let firstPlacemark = placemarks?.first {
+                self.locationDescription = firstPlacemark.locality
+            }
+        }
+        
         // Convert location to CLLocationCoordinate2D.
         let myCoordinate: CLLocationCoordinate2D = mapView.convert(location, toCoordinateFrom: mapView)
         
@@ -65,7 +86,7 @@ class TravelLocationsMapViewController: UIViewController {
         // Set the coordinates.
         myPin.coordinate = myCoordinate
         
-        addPin(annotation: myPin)
+        addPin(latitude: myPin.coordinate.latitude, longitude: myPin.coordinate.longitude)
         
         // Set the title.
         //myPin.title = "title"
@@ -77,9 +98,10 @@ class TravelLocationsMapViewController: UIViewController {
         //mapView.addAnnotation(myPin)
     }
     
-    func addPin(annotation: MKPointAnnotation){
+    func addPin(latitude: Double, longitude: Double){
         let pin = Pin(context: dataController.viewContext)
-        pin.annotation = annotation
+        pin.latitude = latitude
+        pin.longitude = longitude
         try? dataController.viewContext.save()
     }
 

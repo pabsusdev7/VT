@@ -20,10 +20,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         dataController.load()
         
-        let navigationController = window?.rootViewController as! UINavigationController
-        let travelLocationsMapViewController = navigationController.topViewController as! TravelLocationsMapViewController
-        travelLocationsMapViewController.dataController = dataController
-        
         return true
     }
     
