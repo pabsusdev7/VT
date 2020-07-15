@@ -18,6 +18,10 @@ class PhotoAlbumViewController: UIViewController {
     
     var pin: Pin!
     
+    var photoPages: Int = 0
+    
+    let cache = NSCache<NSString, AnyObject>()
+    
     let placeholderImage = UIImage(named: "placeholder")
     
     @IBOutlet weak var collectionView: UICollectionView!
@@ -103,28 +107,34 @@ class PhotoAlbumViewController: UIViewController {
     func retrieveLocationPhotos(){
         if let location = pin {
             newCollectionBtn.isEnabled = false
-            FlickrClient.getLocationPhotos(lat: location.latitude, lon: location.longitude, completion: handleLocationPhotoResponse(photos:error:))
+            if let pages = cache.object(forKey: "photoPages") {
+                photoPages = pages as! Int
+            }
+            let page = photoPages > 1 ? Int.random(in:2...photoPages) : 1
+            print("Page for API request: \(page), Location: \(location.latitude), \(location.longitude)")
+            FlickrClient.getLocationPhotos(lat: location.latitude, lon: location.longitude, page:page, completion: handleLocationPhotoResponse(photos:error:))
         }
     }
     
-    func handleLocationPhotoResponse(photos: [Picture], error: Error?){
+    func handleLocationPhotoResponse(photos: Photos?, error: Error?){
         
-        guard !photos.isEmpty else {
+        guard photos != nil && photos?.photo != nil && !photos!.photo.isEmpty else {
             errorMessage.isHidden = false
             return
         }
-        
+        photoPages = photos?.pages ?? 0
+        cache.setObject(photoPages as NSNumber, forKey: "photoPages")
         errorMessage.isHidden = true
-        var downloadedPhotos: Int = 0
-        for photo in photos {
+        var counter: Int = 0
+        for photo in photos!.photo {
             let placeholder = addPlaceholderPhoto()
             FlickrClient.getPhoto(photo: photo, completion: { data, error in
-                guard let data = data, error == nil else { return }
-                self.updateWithDownloadedPhoto(photo: placeholder, data: data)
-                downloadedPhotos += 1
-                if downloadedPhotos == photos.count {
+                counter += 1
+                if counter == photos!.photo.count {
                     self.newCollectionBtn.isEnabled = true
                 }
+                guard let data = data, error == nil else { return }
+                self.updateWithDownloadedPhoto(photo: placeholder, data: data)
             })
         }
         

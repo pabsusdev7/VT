@@ -180,6 +180,7 @@ extension TravelLocationsMapViewController: MKMapViewDelegate {
            }
         }
         
+        mapView.deselectAnnotation(view.annotation! , animated: true)
         
         performSegue(withIdentifier: "showPhotoAlbum", sender: nil)
     }
