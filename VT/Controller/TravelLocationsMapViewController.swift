@@ -14,7 +14,7 @@ class TravelLocationsMapViewController: UIViewController {
     
     @IBOutlet weak var mapView: MKMapView!
     
-    var geoCoder: CLGeocoder!
+    var pin : Pin!
     
     var appDel: AppDelegate!
     
@@ -47,12 +47,26 @@ class TravelLocationsMapViewController: UIViewController {
         
         setUpFetchedResultsController()
         
+        mapView.delegate = self
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if fetchedResultsController == nil {
+            setUpFetchedResultsController()
+        }
         // Generate long-press UIGestureRecognizer.
         let longPress: UILongPressGestureRecognizer = UILongPressGestureRecognizer()
         longPress.addTarget(self, action: #selector(recognizeLongPress(_:)))
         
         // Added UIGestureRecognizer to MapView.
         mapView.addGestureRecognizer(longPress)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        fetchedResultsController = nil
     }
     
     @objc private func recognizeLongPress(_ sender: UILongPressGestureRecognizer) {
@@ -64,45 +78,39 @@ class TravelLocationsMapViewController: UIViewController {
         // Get the coordinates of the point you pressed long.
         let location = sender.location(in: mapView)
         
-        var locationDescription = ""
-        
-        geoCoder!.reverseGeocodeLocation(location) { (placemarks, error) in
-            guard error == nil else {
-                return
-            }
-            
-            // Most geocoding requests contain only one result.
-            if let firstPlacemark = placemarks?.first {
-                self.locationDescription = firstPlacemark.locality
-            }
-        }
-        
         // Convert location to CLLocationCoordinate2D.
         let myCoordinate: CLLocationCoordinate2D = mapView.convert(location, toCoordinateFrom: mapView)
         
-        // Generate pins.
-        let myPin: MKPointAnnotation = MKPointAnnotation()
+        let cllLocation = CLLocation(latitude: myCoordinate.latitude, longitude: myCoordinate.longitude)
         
-        // Set the coordinates.
-        myPin.coordinate = myCoordinate
+        let geoCoder = CLGeocoder()
         
-        addPin(latitude: myPin.coordinate.latitude, longitude: myPin.coordinate.longitude)
-        
-        // Set the title.
-        //myPin.title = "title"
-        
-        // Set subtitle.
-        //myPin.subtitle = "subtitle"
-        
-        // Added pins to MapView.
-        //mapView.addAnnotation(myPin)
+        geoCoder.reverseGeocodeLocation(cllLocation) { (placemarks, error) in
+            var locationDescription: String = ""
+            
+            // Most geocoding requests contain only one result.
+            if let firstPlacemark = placemarks?.first {
+                locationDescription = firstPlacemark.locality ?? ""
+            }
+            DispatchQueue.main.async {
+                self.addPin(latitude: myCoordinate.latitude, longitude: myCoordinate.longitude, title: locationDescription)
+            }
+        }
     }
     
-    func addPin(latitude: Double, longitude: Double){
+    func addPin(latitude: Double, longitude: Double, title: String){
         let pin = Pin(context: dataController.viewContext)
         pin.latitude = latitude
         pin.longitude = longitude
+        pin.title = title
         try? dataController.viewContext.save()
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showPhotoAlbum"{
+            let photoAlbumVC = segue.destination as! PhotoAlbumViewController
+            photoAlbumVC.pin = pin
+        }
     }
 
 
@@ -146,7 +154,6 @@ extension TravelLocationsMapViewController: MKMapViewDelegate {
             pinView!.canShowCallout = true
             pinView!.pinTintColor = .red
             pinView!.animatesDrop = true
-            pinView!.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
         }
         else {
             pinView!.annotation = annotation
@@ -155,15 +162,26 @@ extension TravelLocationsMapViewController: MKMapViewDelegate {
         return pinView
     }
     
-    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-        
-        if control == view.rightCalloutAccessoryView {
-            
-            if let toOpen = URL(string: view.annotation?.subtitle! ?? "") {
-                //app.openURL(URL(string: toOpen)!)
-                UIApplication.shared.open(toOpen)
-            }
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        if let annotation = view.annotation {
+           let fetchRequest:NSFetchRequest<Pin> = Pin.fetchRequest()
+           let latPredicate = NSPredicate(format: "latitude == %lf", annotation.coordinate.latitude)
+           let lonPredicate = NSPredicate(format: "longitude == %lf", annotation.coordinate.longitude)
+           let andPredicate = NSCompoundPredicate(type: NSCompoundPredicate.LogicalType.and, subpredicates: [latPredicate, lonPredicate])
+           fetchRequest.predicate = andPredicate
+           let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
+           fetchRequest.sortDescriptors = [sortDescriptor]
+           fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+           do{
+               try fetchedResultsController.performFetch()
+               pin = fetchedResultsController.fetchedObjects?[0]
+           }catch{
+               fatalError("The fetch could not be performed: \(error.localizedDescription)")
+           }
         }
+        
+        
+        performSegue(withIdentifier: "showPhotoAlbum", sender: nil)
     }
     
 }
